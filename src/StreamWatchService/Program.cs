@@ -3,12 +3,25 @@
     using System;
     using System.ServiceProcess;
 
+    using NLog;
+
     using PowerArgs;
+
+    using SimpleInjector;
 
     using StreamWatchService.ServiceHelpers;
 
     internal static class Program
     {
+        private static readonly Lazy<Container> DefaultContainer = new Lazy<Container>(CreateDefaultContainer);
+
+        private static Container Container => DefaultContainer.Value;
+
+        static Program()
+        {
+            SetupDependencies();
+        }
+
         private static void Main(string[] arguments)
         {
             var options = Args.Parse<StreamWatchOptions>(arguments);
@@ -18,7 +31,7 @@
                 Environment.Exit(0);
             }
 
-            using (var application = new StreamWatchWindowsService())
+            using (var application = Container.GetInstance<IWindowsService>())
             {
                 if (Environment.UserInteractive || options.RunAsConsole)
                 {
@@ -32,6 +45,11 @@
                     }
                 }
             }
+        }
+
+        private static Container CreateDefaultContainer()
+        {
+            return new Container();
         }
 
         private static bool IsSetupRequested(StreamWatchOptions options)
@@ -50,6 +68,13 @@
             }
 
             return true;
+        }
+
+        private static void SetupDependencies()
+        {
+            Container.Register<IWindowsService, StreamWatchWindowsService>(Lifestyle.Singleton);
+            Container.Register<LiveStreamerResource>(Lifestyle.Singleton);
+            Container.Register(() => LogManager.GetLogger("StreamWatchService"), Lifestyle.Singleton);
         }
     }
 }
