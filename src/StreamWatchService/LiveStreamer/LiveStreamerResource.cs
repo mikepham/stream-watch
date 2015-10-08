@@ -1,4 +1,4 @@
-﻿namespace StreamWatchService
+﻿namespace StreamWatchService.LiveStreamer
 {
     using System;
     using System.IO;
@@ -22,9 +22,17 @@
             this.logger = logger;
         }
 
+        public string GetLiveStreamerFileName()
+        {
+            var path = this.GetLiveStreamerInstallationPath();
+            var filename = Path.Combine(path, LiveStreamerResourceExe);
+
+            return filename;
+        }
+
         public Task<LiveStreamerInstallState> GetLiveStreamerStateAsync()
         {
-            var path = GetLiveStreamerInstallationPath();
+            var path = this.GetLiveStreamerInstallationPath();
             var filename = Path.Combine(path, LiveStreamerResourceExe);
 
             if (File.Exists(filename))
@@ -37,11 +45,11 @@
 
         public Task<LiveStreamerInstallState> InstallAsync()
         {
-            var path = GetAppDataPath();
+            var path = this.GetAppDataPath();
 
             try
             {
-                using (var stream = GetResourceStream())
+                using (var stream = this.GetResourceStream())
                 using (var archive = new ZipArchive(stream))
                 {
                     archive.ExtractToDirectory(path);

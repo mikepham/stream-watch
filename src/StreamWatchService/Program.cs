@@ -9,13 +9,15 @@
 
     using SimpleInjector;
 
+    using StreamWatchService.Api.Controllers;
+    using StreamWatchService.LiveStreamer;
     using StreamWatchService.ServiceHelpers;
 
     internal static class Program
     {
         private static readonly Lazy<Container> DefaultContainer = new Lazy<Container>(CreateDefaultContainer);
 
-        private static Container Container => DefaultContainer.Value;
+        internal static Container Container => DefaultContainer.Value;
 
         static Program()
         {
@@ -75,6 +77,8 @@
             Container.Register<IWindowsService, StreamWatchWindowsService>(Lifestyle.Singleton);
             Container.Register<LiveStreamerResource>(Lifestyle.Singleton);
             Container.Register(() => LogManager.GetLogger("StreamWatchService"), Lifestyle.Singleton);
+            Container.Register<LiveStreamerMonitor>();
+            Container.Register<UserController>();
         }
     }
 }

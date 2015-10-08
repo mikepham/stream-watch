@@ -1,4 +1,4 @@
-﻿namespace StreamWatchService
+﻿namespace StreamWatchService.LiveStreamer
 {
     public enum LiveStreamerInstallState
     {
